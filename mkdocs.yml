@@ -2,24 +2,82 @@ site_name: Minhas notas de aula
 site_author: Diego Viana Gomes
 site_description: Comprehensive study notes and conceptual references on Data Science, Software Engineering, Architecture, and Urbanism, connecting technology, design, and urban development.
 
+repo_name: diegovianagomes/notas_de_aula
+repo_url: https://github.com/diegovianagomes/notas_de_aula
+
 copyright: Copyright &copy; Diego Viana Gomes
+
+nav:
+  - Home: index.md
+  - 'Ciência de Dados':
+      - 'Processamento de Sinais': ciencia_dados/signal_process.md
+
+  - Arquitetura:
+      - 'Parametria na arquitetura e urbanismo hoje': arquitetura/parametria.md
+
 
 theme:
   name: material
-  languages: en
+  languages: pt-BR
 
   palette:
-    scheme : slate
-    primary: indigo
-    accent : indigo
+    - media: "(prefers-color-scheme: light)"
+      scheme : default
+      toggle:
+        icon: material/brightness-7
+        name: Mudar para modo escuro
+      primary: pink
+      accent : purple
+
+    - media: "(prefers-color-scheme: dark)"
+      scheme : slate
+      toggle:
+        icon: material/brightness-4
+        name: Mudar para modo claro
+      primary: pink
+      accent : purple
 
   font:
-    text: Lato
-    code: Fira Code
+    text: Roboto
+    code: Roboto Mono
+
+  icon:
+    previous: fontawesome/solid/angle-left
+    next: fontawesome/solid/angle-right
+
 
 plugins:
   - search
   - git-revision-date-localized:
       enable_creation_date: true
-      type: date
+      type: custom
+      custom_format: "%d/%m/%Y" 
       fallback_to_build_date: true
+
+extra:
+  social:
+    - icon: fontawesome/brands/linkedin
+      link: https://www.linkedin.com/in/diegovianagomes/
+    - icon: fontawesome/brands/github
+      link: https://github.com/diegovianagomes
+    - icon: fontawesome/brands/behance
+      link: https://www.behance.net/diego_vianagomes
+
+  alternate:
+    - name: Português
+      link: /
+      lang: pt-BR
+
+
+markdown_extensions:
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.arithmatex:
+      generic: true
+
+extra_javascript:
+  - javascripts/mathjax.js
+  - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
