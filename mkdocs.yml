@@ -1,0 +1,25 @@
+site_name: Minhas notas de aula
+site_author: Diego Viana Gomes
+site_description: Comprehensive study notes and conceptual references on Data Science, Software Engineering, Architecture, and Urbanism, connecting technology, design, and urban development.
+
+copyright: Copyright &copy; Diego Viana Gomes
+
+theme:
+  name: material
+  languages: en
+
+  palette:
+    scheme : slate
+    primary: indigo
+    accent : indigo
+
+  font:
+    text: Lato
+    code: Fira Code
+
+plugins:
+  - search
+  - git-revision-date-localized:
+      enable_creation_date: true
+      type: date
+      fallback_to_build_date: true
