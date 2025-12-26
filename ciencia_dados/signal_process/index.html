@@ -1,0 +1,1311 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Comprehensive study notes and conceptual references on Data Science, Software Engineering, Architecture, and Urbanism, connecting technology, design, and urban development.">
+      
+      
+        <meta name="author" content="Diego Viana Gomes">
+      
+      
+      
+        <link rel="prev" href="../..">
+      
+      
+        <link rel="next" href="../../arquitetura/parametria/">
+      
+      
+        
+          <link rel="alternate" href="/" hreflang="pt-BR">
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Processamento de Sinais - Minhas notas de aula</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="pink" data-md-color-accent="purple">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#processamento-de-sinais" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Minhas notas de aula" class="md-header__button md-logo" aria-label="Minhas notas de aula" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Minhas notas de aula
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Processamento de Sinais
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="pink" data-md-color-accent="purple"  aria-label="Mudar para modo escuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo escuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="pink" data-md-color-accent="purple"  aria-label="Mudar para modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+      <div class="md-header__option">
+  <div class="md-select">
+    
+    <button class="md-header__button md-icon" aria-label="Select language">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7 1.62-4.33L19.12 17z"/></svg>
+    </button>
+    <div class="md-select__inner">
+      <ul class="md-select__list">
+        
+          <li class="md-select__item">
+            <a href="/" hreflang="pt-BR" class="md-select__link">
+              Português
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</div>
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L77.3 256l137.3-137.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/diegovianagomes/notas_de_aula" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    diegovianagomes/notas_de_aula
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Minhas notas de aula" class="md-nav__button md-logo" aria-label="Minhas notas de aula" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Minhas notas de aula
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/diegovianagomes/notas_de_aula" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    diegovianagomes/notas_de_aula
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ciência de Dados
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Ciência de Dados
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Processamento de Sinais
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Processamento de Sinais
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-ingestao-de-dados-data_loader" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Ingestão de Dados (data_loader)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Ingestão de Dados (data_loader)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#o-desafio-dos-dados-multimodais" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O Desafio dos Dados Multimodais
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#leitura-de-arquivos-e-sincronizacao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Leitura de Arquivos e Sincronização
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#conversao-para-timedelta" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conversão para Timedelta
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tratamento-do-intervalo-interbatimento-ibi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tratamento do Intervalo Interbatimento (IBI)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pre-processamento" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pré-processamento
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Pré-processamento">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pipeline-de-limpeza-por-sensor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pipeline de Limpeza por Sensor
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#atividade-eletrodermica-eda" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Atividade Eletrodérmica (EDA)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fotopletismografia-bvp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fotopletismografia (BVP)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#acelerometria-acc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Acelerometria (ACC)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#segmentacao-janelamento" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Segmentação (Janelamento)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Segmentação (Janelamento)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#controle-de-qualidade" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Controle de Qualidade
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extracao-de-caracteristicas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Extração de Características
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Extração de Características">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#features-de-bvp-variabilidade-da-frequencia-cardiaca" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Features de BVP (Variabilidade da Frequência Cardíaca)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#features-de-eda-resposta-galvanica" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Features de EDA (Resposta Galvânica)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rotulagem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rotulagem
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias-bibliograficas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências Bibliográficas
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Arquitetura
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Arquitetura
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../arquitetura/parametria/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Parametria na arquitetura e urbanismo hoje
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-ingestao-de-dados-data_loader" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Ingestão de Dados (data_loader)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Ingestão de Dados (data_loader)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#o-desafio-dos-dados-multimodais" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O Desafio dos Dados Multimodais
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#leitura-de-arquivos-e-sincronizacao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Leitura de Arquivos e Sincronização
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#conversao-para-timedelta" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conversão para Timedelta
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tratamento-do-intervalo-interbatimento-ibi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tratamento do Intervalo Interbatimento (IBI)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pre-processamento" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pré-processamento
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Pré-processamento">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pipeline-de-limpeza-por-sensor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pipeline de Limpeza por Sensor
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#atividade-eletrodermica-eda" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Atividade Eletrodérmica (EDA)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fotopletismografia-bvp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fotopletismografia (BVP)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#acelerometria-acc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Acelerometria (ACC)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#segmentacao-janelamento" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Segmentação (Janelamento)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Segmentação (Janelamento)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#controle-de-qualidade" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Controle de Qualidade
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extracao-de-caracteristicas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Extração de Características
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Extração de Características">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#features-de-bvp-variabilidade-da-frequencia-cardiaca" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Features de BVP (Variabilidade da Frequência Cardíaca)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#features-de-eda-resposta-galvanica" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Features de EDA (Resposta Galvânica)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rotulagem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rotulagem
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias-bibliograficas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências Bibliográficas
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="processamento-de-sinais">Processamento de Sinais</h1>
+<p>O primeiro passo crítico em uma pipeline de processamento de sinais de saúde é a ingestão correta dos dados brutos. Neste projeto, foi utilizado o dataset <strong>Empatica4Stress</strong><a href="#ref1">[1]</a> como modelo para construir nosso módulo de carregamento.</p>
+<p>Este artigo detalha o funcionamento dos módulos <code>data_loader</code>, <code>preprocessing</code>, <code>feature_extraction</code> e <code>labeling</code>.</p>
+<p><strong>Fluxo do Pipeline:</strong>
+<code>data_loader</code> <span class="arithmatex">\(\rightarrow\)</span> <code>preprocessing</code> <span class="arithmatex">\(\rightarrow\)</span> <code>feature_extraction</code> <span class="arithmatex">\(\rightarrow\)</span> <code>labeling</code></p>
+<hr />
+<h2 id="1-ingestao-de-dados-data_loader">1. Ingestão de Dados (<code>data_loader</code>)</h2>
+<p>Este módulo tem a função de ingerir os dados brutos pela leitura dos arquivos CSV gerados pelo dispositivo <strong>Empatica E4</strong><a href="#ref1">[1]</a>.</p>
+<h3 id="o-desafio-dos-dados-multimodais">O Desafio dos Dados Multimodais</h3>
+<p>O dispositivo coleta dados de diversos sensores simultaneamente. O maior desafio na ingestão desses dados é que cada sensor opera em uma <strong>Taxa de Amostragem (Sampling Rate)</strong> diferente:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Sensor</th>
+<th style="text-align: left;">Descrição</th>
+<th style="text-align: center;">Taxa de Amostragem (Hz)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><strong>BVP</strong></td>
+<td style="text-align: left;">Fotopletismografia</td>
+<td style="text-align: center;">64</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>ACC</strong></td>
+<td style="text-align: left;">Acelerômetro (Movimento 3 eixos)</td>
+<td style="text-align: center;">32</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>EDA</strong></td>
+<td style="text-align: left;">Atividade Eletrodérmica (Suor/Estresse)</td>
+<td style="text-align: center;">4</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>TEMP</strong></td>
+<td style="text-align: left;">Temperatura da Pele</td>
+<td style="text-align: center;">4</td>
+</tr>
+</tbody>
+</table>
+<p>Isso significa que, para um mesmo intervalo de tempo, teremos 64 pontos de dados para o BVP, mas apenas 4 pontos para a EDA. O <code>data_loader</code> tem a função de normalizar essa discrepância temporal.</p>
+<h3 id="leitura-de-arquivos-e-sincronizacao">Leitura de Arquivos e Sincronização</h3>
+<p>Os arquivos CSV do Empatica possuem um cabeçalho específico ("headless") nas duas primeiras linhas:
+* <strong>Linha 0:</strong> Timestamp de início.
+* <strong>Linha 1:</strong> Taxa de amostragem (Hz).
+* <strong>Linha ...:</strong> Dados brutos.</p>
+<p>O nosso <code>data_loader</code> lê esses dados separadamente para configurar a frequência correta de cada sinal antes de carregar o restante dos dados.</p>
+<h3 id="conversao-para-timedelta">Conversão para Timedelta</h3>
+<p>Em vez de trabalhar com datas absolutas, que podem complicar a fusão de dados de diferentes sessões ou sujeitos, optou-se por converter o índice para <strong>Timedelta</strong>, que é o tempo decorrido desde o início da gravação.</p>
+<p>A lógica aplicada é:</p>
+<div class="arithmatex">\[t_i = \frac{i}{f_s}\]</div>
+<p>Onde, <span class="arithmatex">\(t_i\)</span> refere-se ao tempo em segundos do índice da amostra <span class="arithmatex">\(i\)</span> e <span class="arithmatex">\(f_s\)</span> é a frequência de amostragem do sensor.</p>
+<p>!!! quote "Por que Timedelta?"
+    Usar Timedelta facilita o alinhamento de janelas. Por exemplo, podemos pegar os primeiros 60 segundos, independentemente da hora do dia em que o experimento foi realizado.</p>
+<h3 id="tratamento-do-intervalo-interbatimento-ibi">Tratamento do Intervalo Interbatimento (IBI)</h3>
+<p>O IBI (Intervalo Interbatimento) refere-se ao tempo preciso, geralmente em milissegundos, entre dois batimentos cardíacos consecutivos. É uma medida fundamental para analisar a variabilidade da frequência cardíaca (VFC) e revela como o sistema nervoso autônomo (SNA) responde ao estresse ou repouso. Uma variação normal é algo bom, enquanto IBIs excessivamente consistentes ou irregulares podem indicar problemas.</p>
+<p>Ele não possui uma taxa de amostragem fixa, pois é uma <strong>série temporal de eventos</strong>. Um dado é gerado apenas quando um pico R é detectado. O <code>data_loader</code> trata o IBI preservando o timestamp exato de ocorrência de cada batimento, o que é crucial para análises posteriores de VFC no domínio da frequência.</p>
+<pre class="mermaid"><code>graph TD
+    classDef default font-size:16px;
+
+    A[Dados Brutos] --&gt; B("data_loader")
+    B -- Leitura --&gt; C{"Tipo de Sensor?"}
+
+    C -- "BVP / ACC / EDA" --&gt; D["Calcula Timedelta&lt;br/&gt;(Baseado em 1/Fs)"]
+    C -- IBI --&gt; E["Preserva Timestamp&lt;br/&gt;de Evento"]
+
+    D --&gt; F[("Dict de DataFrames&lt;br/&gt;{sensor: df}")]
+    E --&gt; F
+    F --&gt; G["Pré-processamento"]
+
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style G fill:#f9f,stroke:#333,stroke-width:2px</code></pre>
+<h3 id="pre-processamento">Pré-processamento</h3>
+<p>Após a ingestão, entramos no núcleo do processamento. O objetivo desta etapa é duplo: limpar o ruído inerente à coleta de dados em ambiente não controlado e segmentar os dados em unidades de tempo comparáveis.</p>
+<h4 id="pipeline-de-limpeza-por-sensor">Pipeline de Limpeza por Sensor</h4>
+<p>Cada sensor possui características espectrais e tipos de ruído distintos, exigindo estratégias de filtragem específicas.</p>
+<h4 id="atividade-eletrodermica-eda">Atividade Eletrodérmica (EDA)</h4>
+<p>A EDA reflete mudanças na condutividade elétrica da pele, que podem vir de estímulos internos ou externos. Esses estímulos refletem em alterações na atividade das glândulas sudoríparas écrinas, que são inervadas pelo Sistema Nervoso Simpático (SNS) <a href="#ref3">[3]</a>. </p>
+<p>O principal desafio técnico aqui é o alinhamento temporal com sensores mais rápidos.</p>
+<ul>
+<li><strong>Upsampling:</strong> Realiza-se a interpolação do sinal de 4Hz para 64Hz (mesma frequência do BVP) via interpolação linear, de maneira que as matrizes de dados tenham o mesmo tamanho durante a segmentação.</li>
+<li><strong>Suavização:</strong> Aplicação de um Filtro Gaussiano (<code>sigma=400ms</code>) para remover micro-flutuações e ruído de quantização, preservando a morfologia macro das respostas de condutância (SCR).</li>
+</ul>
+<h4 id="fotopletismografia-bvp">Fotopletismografia (BVP)</h4>
+<p>O sinal de volume sanguíneo é suscetível a artefatos de movimento e variações de linha de base.
+* <strong>Filtro Passa-Banda (Bandpass):</strong> Utilizamos um filtro <strong>Chebyshev Tipo II</strong> (Ordem 4, Atenuação 20dB), com faixa de <strong>0.5 Hz a 5.0 Hz</strong>. Essa faixa corresponde a uma frequência cardíaca entre 30 bpm e 300 bpm, cobrindo todo o espectro fisiológico humano e eliminando ruídos de baixa frequência (respiração/movimento lento) e alta frequência (elétrico).
+* <strong>Fase Zero:</strong> Utilizamos a função <code>sosfiltfilt</code> (filtragem bidirecional) para garantir que não haja deslocamento de fase, o que alteraria a localização temporal dos picos sistólicos.</p>
+<h4 id="acelerometria-acc">Acelerometria (ACC)</h4>
+<p>Para medir a intensidade do movimento independentemente da posição do braço do usuário, calculamos a Magnitude Vetorial:</p>
+<div class="arithmatex">\[Mag_{ACC} = \sqrt{x^2 + y^2 + z^2}\]</div>
+<p>Em seguida, aplicamos uma suavização Gaussiana (<code>sigma=5</code>) para atenuar a vibração e focar no movimento voluntário.</p>
+<h3 id="segmentacao-janelamento">Segmentação (Janelamento)</h3>
+<p>Os dados contínuos são fatiados em janelas de <strong>60 segundos</strong>.</p>
+<h4 id="controle-de-qualidade">Controle de Qualidade</h4>
+<p>Se uma janela contiver menos de <strong>95%</strong> dos dados esperados, como por exemplo devido a uma queda de conexão, ela é descartada. Isso evita que o modelo aprenda com janelas incompletas ou corrompidas.</p>
+<pre class="mermaid"><code>graph TD
+    subgraph Raw ["Dados Brutos"]
+        A["EDA (4Hz)"]
+        B["BVP (64Hz)"]
+        C["ACC (32Hz)"]
+    end
+
+    subgraph Process ["Tratamento"]
+        A --&gt; A1["Upsampling (64Hz)&lt;br/&gt;+ Gaussiano"]
+        B --&gt; B1["Bandpass Chebyshev II&lt;br/&gt;(0.5 - 5.0 Hz)"]
+        C --&gt; C1["Magnitude Vetorial&lt;br/&gt;+ Gaussiano"]
+    end
+
+    subgraph Output ["Segmentação"]
+        A1 --&gt; D{"Janelamento&lt;br/&gt;(60s)"}
+        B1 --&gt; D
+        C1 --&gt; D
+        D -- "Perda &lt; 5%" --&gt; E[Janela Válida]
+        D -- "Perda &gt; 5%" --&gt; F[Descarte]
+    end</code></pre>
+<h3 id="extracao-de-caracteristicas">Extração de Características</h3>
+<p>Com as janelas limpas, transformamos as séries temporais em vetores de características (feature vectors) prontos para modelos de Machine Learning.</p>
+<h4 id="features-de-bvp-variabilidade-da-frequencia-cardiaca">Features de BVP (Variabilidade da Frequência Cardíaca)</h4>
+<p>A VFC é o padrão-ouro para detecção de estresse autonômico.</p>
+<ul>
+<li>
+<p>Domínio do Tempo: Focamos na estatística dos intervalos entre picos. <code>Mean_PP</code>, <code>std_PP</code> (média e desvio padrão dos intervalos pico-a-pico) e <code>M_HR</code> (Média da frequência cardíaca instantânea).</p>
+</li>
+<li>
+<p>Domínio da Frequência: A <code>HF</code> (High Frequency) apresenta-se como a potência na banda 0.15–0.4 Hz, calculada via método de Welch. Esta métrica é associada à atividade parassimpática de relaxamento.</p>
+</li>
+<li>
+<p>Não-Linear: O <code>SD2</code> (Poincaré Plot) representa a variabilidade de longo prazo e correlaciona-se com a atividade simpática e parassimpática global.</p>
+</li>
+</ul>
+<h4 id="features-de-eda-resposta-galvanica">Features de EDA (Resposta Galvânica)</h4>
+<p>A EDA é decomposta em nível tônico (linha de base) e fásico (respostas rápidas a estímulos - SCR).</p>
+<ul>
+<li>
+<p>Detecção: Primeiro é feita a detecção de picos (SCR), utilizando uma técnica de convolução com janela Bartlett de 20 pontos na derivada do sinal. Isso atua como um detector de bordas (matched filter) para encontrar subidas abruptas de condutância, típicas de estresse agudo.</p>
+</li>
+<li>
+<p>Métricas:</p>
+<ul>
+<li><code>N_PEAKS</code>: Quantidade de picos na janela (frequência de estímulos).</li>
+<li><code>M_Amp</code>: Amplitude média dos picos (intensidade da reação).</li>
+<li><code>M_RT</code> (Rise Time): Tempo médio de subida do pico.</li>
+</ul>
+</li>
+</ul>
+<h3 id="rotulagem">Rotulagem</h3>
+<p>A etapa final antes do treinamento é atribuir um rótulo (y) para cada janela de dados (X). O sistema vai suportar duas estratégias:</p>
+<p>A etapa final antes do treinamento é atribuir um rótulo (y) para cada janela de dados (X). O sistema suporta duas estratégias:</p>
+<ul>
+<li>
+<p>Método 1: Protocolo Temporal onde os rótulos são atribuídos baseados em timestamps pré-definidos.</p>
+<ul>
+<li>Das 14:00 às 14:20 = Stress</li>
+<li>Restante = Baseline</li>
+</ul>
+</li>
+<li>
+<p>Método 2: Limiar Fisiológico, onde é definida binariamente rotulos de Stress = 1 ou= 1 ou Repouso = 0 se a média da EDA na janela for superior a um limiar T. O limiar pode ser fixo ou adaptativo, por exemplo:</p>
+</li>
+</ul>
+<div class="arithmatex">\[T = \mu_{\text{sujeito}} + \sigma_{\text{sujeito}}\]</div>
+<p>Onde:</p>
+<ul>
+<li><span class="arithmatex">\(T\)</span>: É o nosso limiar de Corte (<em>Threshold</em>), que se a média da EDA na janela atual for maior que <span class="arithmatex">\(T\)</span>, a janela é rotulada como <em>Estresse</em> (<code>1</code>); caso contrário, é <em>Repouso</em> (<code>0</code>).</li>
+<li><span class="arithmatex">\(\mu_{\text{sujeito}}\)</span>: Representa a <em>Média</em> da Atividade Eletrodérmica (EDA) daquele sujeito específico, calculada preferencialmente durante o período de <em>baseline</em> (repouso inicial).</li>
+<li><span class="arithmatex">\(\sigma_{\text{sujeito}}\)</span>: Representa o <em>Desvio Padrão</em> da EDA do sujeito. Adicionar o desvio padrão serve para garantir que apenas aumentos significativos sejam considerados estresse.</li>
+</ul>
+<div style="display: none;">
+
+## Código Fonte
+
+O pipeline completo está implementado em Python e hospedado no GitHub. Abaixo estão os links diretos para os módulos descritos neste artigo:
+
+* [**01_data_loader.py**](https://github.com/SEU_USUARIO/SEU_REPOSITORIO/blob/main/src/01_data_loader.py) – Ingestão e sincronização dos sensores (BVP, ACC, EDA, TEMP).
+* [**04_preprocessing.py**](https://github.com/SEU_USUARIO/SEU_REPOSITORIO/blob/main/src/04_preprocessing.py) – Filtragem de sinal, *upsampling* e segmentação de janelas.
+* [**02_feature_extraction.py**](https://github.com/SEU_USUARIO/SEU_REPOSITORIO/blob/main/src/02_feature_extraction.py) – Extração de métricas de VFC e SCR.
+* [**03_labeling.py**](https://github.com/SEU_USUARIO/SEU_REPOSITORIO/blob/main/src/03_labeling.py) – Definição dos rótulos de estresse (Target).
+
+!!! info "Estrutura de Pastas"
+    Certifique-se de que o arquivo `config.py` também esteja presente no seu diretório `src/`, pois ele contém as constantes de frequência de amostragem utilizadas por todos os scripts acima.
+
+</div>
+
+<h2 id="referencias-bibliograficas">Referências Bibliográficas</h2>
+<ol>
+<li><span id="ref1"></span> Empatica Inc. (2020). <em>E4 wristband user's manual</em>. Recuperado de <a href="https://www.empatica.com/en-eu/research/e4/">https://www.empatica.com/en-eu/research/e4/</a></li>
+<li><span id="ref2"></span> Task Force of the European Society of Cardiology and the North American Society of Pacing and Electrophysiology. (1996). Heart rate variability: standards of measurement, physiological interpretation and clinical use. <em>Circulation</em>, <em>93</em>(5), 1043-1065.</li>
+<li><span id="ref3"></span> Boucsein, W. (2012). <em>Electrodermal activity</em> (2nd ed.). Springer Science &amp; Business Media.</li>
+<li><span id="ref4"></span> Schmidt, P., Reiss, A., Duerichen, R., Marberger, C., &amp; Van Laerhoven, K. (2018). Introducing WESAD, a multimodal dataset for wearable stress and affect detection. In <em>Proceedings of the 20th ACM International Conference on Multimodal Interaction</em> (pp. 400-408).</li>
+</ol>
+
+
+
+
+
+
+
+  
+    
+  
+  
+    
+  
+
+
+  <aside class="md-source-file">
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="Last update">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-custom" title="December 26, 2025 17:52:08 UTC">26/12/2025</span>
+  </span>
+
+    
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="Created">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-custom" title="December 26, 2025 17:52:08 UTC">26/12/2025</span>
+  </span>
+
+    
+    
+    
+  </aside>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; Diego Viana Gomes
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://www.linkedin.com/in/diegovianagomes/" target="_blank" rel="noopener" title="www.linkedin.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3M135.4 416H69V202.2h66.5V416zM102.2 96a38.5 38.5 0 1 1 0 77 38.5 38.5 0 1 1 0-77m282.1 320h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/diegovianagomes" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://www.behance.net/diego_vianagomes" target="_blank" rel="noopener" title="www.behance.net" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M232 237.2c31.8-15.2 48.4-38.2 48.4-74 0-70.6-52.6-87.8-113.3-87.8H0v354.4h171.8c64.4 0 124.9-30.9 124.9-102.9 0-44.5-21.1-77.4-64.7-89.7M77.9 135.9H151c28.1 0 53.4 7.9 53.4 40.5 0 30.1-19.7 42.2-47.5 42.2h-79zm83.3 233.7H77.9V272h84.9c34.3 0 56 14.3 56 50.6 0 35.8-25.9 47-57.6 47m358.5-240.7H376V94h143.7zM576 305.2c0-75.9-44.4-139.2-124.9-139.2-78.2 0-131.3 58.8-131.3 135.8 0 79.9 50.3 134.7 131.3 134.7 61.3 0 101-27.6 120.1-86.3H509c-6.7 21.9-34.3 33.5-55.7 33.5-41.3 0-63-24.2-63-65.3h185.1c.3-4.2.6-8.7.6-13.2M390.4 274c2.3-33.7 24.7-54.8 58.5-54.8 35.4 0 53.2 20.8 56.2 54.8z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>
