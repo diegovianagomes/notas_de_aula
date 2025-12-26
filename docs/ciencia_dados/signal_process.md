@@ -1,8 +1,10 @@
 # Processamento de Sinais
 
-O primeiro passo crítico em uma pipeline de processamento de sinais de saúde é a ingestão correta dos dados brutos. Neste projeto, foi utilizado o dataset 'Empatica4Stress' como modelo para construir nosso módulo de carregamento.
+O primeiro passo crítico em uma pipeline de processamento de sinais de saúde é a ingestão correta dos dados brutos. Neste projeto, foi utilizado o dataset 'Empatica4Stress'[[1]](#ref1) como modelo para construir nosso módulo de carregamento.
 
 Este artigo detalha o funcionamento dos módulos 'data_loader', 'feature_extraction', 'labeling' e 'preprocessing'
+
+**Fluxo de Dados:** `data_loader` $\rightarrow$ `preprocessing` $\rightarrow$ `feature_extraction` $\rightarrow$ `labeling`
 
 ## Dados Multimodais
 
@@ -158,6 +160,13 @@ Os rótulos são atribuídos baseados em timestamps pré-definidos.
 #### Método 2: Limiar Fisiológico
 
 Defimos o `Stress = 1` ou `Repouso = 0`se a média da EDA na janela for superior a um limiar $T$. O limiar pode ser fixo ou adaptativo por exemplo $T=μ_{\text{sujeito}}​+σ_{\text{sujeito}}​$.
+
+## Referências Bibliográficas
+
+1. <span id="ref1"></span> Empatica Inc. (2020). *E4 wristband user's manual*. Recuperado de [https://www.empatica.com/en-eu/research/e4/](https://www.empatica.com/en-eu/research/e4/)
+2. <span id="ref2"></span> Task Force of the European Society of Cardiology and the North American Society of Pacing and Electrophysiology. (1996). Heart rate variability: standards of measurement, physiological interpretation and clinical use. *Circulation*, *93*(5), 1043-1065.
+3. <span id="ref3"></span> Boucsein, W. (2012). *Electrodermal activity* (2nd ed.). Springer Science & Business Media.
+4. <span id="ref4"></span> Schmidt, P., Reiss, A., Duerichen, R., Marberger, C., & Van Laerhoven, K. (2018). Introducing WESAD, a multimodal dataset for wearable stress and affect detection. In *Proceedings of the 20th ACM International Conference on Multimodal Interaction* (pp. 400-408).
 
 
 
