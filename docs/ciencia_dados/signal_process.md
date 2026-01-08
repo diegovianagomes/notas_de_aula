@@ -1,20 +1,46 @@
-# Processamento de Sinais
+# Pipeline de Processamento de Sinais (ETL) - Wearable Stress Dataset
 
-O primeiro passo crítico em uma pipeline de processamento de sinais de saúde é a ingestão correta dos dados brutos. Neste projeto, foi utilizado o dataset **Empatica4Stress**[[1]](#ref1) como modelo para construir nosso módulo de carregamento.
+Esta documentação detalha a implementação do pipeline de extração, transformação e carga (ETL) para o processamento de sinais fisiológicos do dispositivo Empatica E4 [[1]](#ref1). O objetivo é preparar os dados brutos do dataset público de Hongn et al. [[5]](#ref5)[[6]](#ref6) para treinamento de modelos de Machine Learning (Baseline).
 
-Este artigo detalha o funcionamento dos módulos `data_loader`, `preprocessing`, `feature_extraction` e `labeling`.
+### Estrutura de Diretórios
+```text
+├── src/
+│   ├── config.py             # Configurações globais e caminhos
+│   ├── data_loader.py        # Leitura dos CSVs brutos (Extract)
+│   ├── preprocessing.py      # Sincronização e filtros (Transform)
+│   ├── labeling.py           # Aplicação de rótulos    (Transform)
+│   └── feature_extraction.py # Janelamento e cálculo de métricas (Transform)
+├── experiments/
+│   ├── notebooks/
+│   │   ├── 01_one_subject.ipynb   # Prototipagem e validação, utilizando apenas um sujeito
+│   │   └── 02_batch_process.ipynb # Processamento em massa (Load)
+│   └── processed/
+│       └── dataset_stress_completo.csv # Arquivo final
+```
 
-**Fluxo do Pipeline:**
-`data_loader` $\rightarrow$ `preprocessing` $\rightarrow$ `feature_extraction` $\rightarrow$ `labeling`
+### Fluxograma do Pipeline 
 
----
+```mermaid
+flowchart LR
+    A[Dados Brutos<br/>.csv] --> B(Data Loader)
+    B --> C{Pré-processamento}
+    C -->|Filtros & Sync| D(Labeling)
+    D --> E(Feature Extraction)
+    E --> F[Dataset Final<br/>Tabela X,y]
+    
+    style A fill:#f9f,stroke:#333
+    style F fill:#bbf,stroke:#333
+```
 
-## 1. Ingestão de Dados (`data_loader`)
 
-Este módulo tem a função de ingerir os dados brutos pela leitura dos arquivos CSV gerados pelo dispositivo **Empatica E4**[[1]](#ref1).
 
-### O Desafio dos Dados Multimodais
-O dispositivo coleta dados de diversos sensores simultaneamente. O maior desafio na ingestão desses dados é que cada sensor opera em uma **Taxa de Amostragem (Sampling Rate)** diferente:
+## Etapa 01 - Extração (`data_loader`)
+
+A primeira etapa consiste em carregar os dados brutos gerados pelo Empatica E4.
+
+Desafio consiste em que os arquivos do E4 não possuem cabeçalho padrão e contêm metadados nas primeiras linhas [[1]](#ref1).
+
+A solução encontrada foi a implementação em `src/data_loader.py`, ignorando cabeçalhos de texto, depois convertendo tudo para numérico, forçando erros a virarem NaN e popr fim foi criado um índice temporal baseado na frequência de amostragem:
 
 | Sensor | Descrição | Taxa de Amostragem (Hz)|
 |:-----:|:----------|:--------------------:|
@@ -25,171 +51,159 @@ O dispositivo coleta dados de diversos sensores simultaneamente. O maior desafio
 
 Isso significa que, para um mesmo intervalo de tempo, teremos 64 pontos de dados para o BVP, mas apenas 4 pontos para a EDA. O `data_loader` tem a função de normalizar essa discrepância temporal.
 
-### Leitura de Arquivos e Sincronização
-Os arquivos CSV do Empatica possuem um cabeçalho específico ("headless") nas duas primeiras linhas:
-* **Linha 0:** Timestamp de início.
-* **Linha 1:** Taxa de amostragem (Hz).
-* **Linha ...:** Dados brutos.
+## Etapa 2: Transformação (`preprocessing` & `labeling`)
 
-O nosso `data_loader` lê esses dados separadamente para configurar a frequência correta de cada sinal antes de carregar o restante dos dados.
+Esta é a fase  onde os dados brutos são limpos e sincronizados.
 
-### Conversão para Timedelta
-Em vez de trabalhar com datas absolutas, que podem complicar a fusão de dados de diferentes sessões ou sujeitos, optou-se por converter o índice para **Timedelta**, que é o tempo decorrido desde o início da gravação.
+### Sincronização e Filtragem (`src/preprocessing.py`)
+Como cada sensor tem uma frequência diferente, criamos uma "Timeline Mestre" de 4Hz para alinhar todos os sinais.
 
-A lógica aplicada é:
+- EDA (Atividade Eletrodérmica): Aplicamos filtro Gaussiano para remover ruído de movimento de alta frequência [[3]](#ref3).
+- ACC (Acelerômetro): Calculamos a Magnitude $\sqrt{x^2+y^2+z^2}$ para ter uma medida única de intensidade de movimento.
 
-$$t_i = \frac{i}{f_s}$$
+### Rotulagem (`src/labeling.py`)
 
-Onde, $t_i$ refere-se ao tempo em segundos do índice da amostra $i$ e $f_s$ é a frequência de amostragem do sensor.
+A definição do *Ground Truth* foi adaptada para refletir as diferenças estruturais entre os grupos, conforme detalhado na metodologia do experimento [[5]](#ref5)[[6]](#ref6). O script `src/labeling.py` identifica o protocolo pelo ID do sujeito e aplica os rótulos de estresse (Label 1) nas fases ativas específicas.
 
-!!! quote "Por que Timedelta?"
-    Usar Timedelta facilita o alinhamento de janelas. Por exemplo, podemos pegar os primeiros 60 segundos, independentemente da hora do dia em que o experimento foi realizado.
+#### Protocolo V1 (Grupo `Sxx`)
+Estrutura clássica com três blocos de estresse intercalados por repouso. O último bloco é subdividido em três tarefas curtas.
 
-### Tratamento do Intervalo Interbatimento (IBI)
-O IBI (Intervalo Interbatimento) refere-se ao tempo preciso, geralmente em milissegundos, entre dois batimentos cardíacos consecutivos. É uma medida fundamental para analisar a variabilidade da frequência cardíaca (VFC) e revela como o sistema nervoso autônomo (SNA) responde ao estresse ou repouso. Uma variação normal é algo bom, enquanto IBIs excessivamente consistentes ou irregulares podem indicar problemas.
+**Sequência de Fases:**
+```mermaid
+flowchart LR
+    T0[0. Baseline]:::rest --> T1[1. Stroop]:::stress
+    T1 --> T2[2. Rest]:::rest
+    T2 --> T3[3. TMTC]:::stress
+    T3 --> T4[4. Rest]:::rest
+    T4 --> T5[5. Real Opinion]:::stress
+    T5 --> T6[6. Opposite Opinion]:::stress
+    T6 --> T7[7. Subtract]:::stress
+    
+    classDef stress fill:#ffcccc,stroke:#333,stroke-width:2px;
+    classDef rest fill:#ccffcc,stroke:#333,stroke-width:1px;
+```
+> Stress: Índices `[1, 3, 5, 6, 7]`.
 
-Ele não possui uma taxa de amostragem fixa, pois é uma **série temporal de eventos**. Um dado é gerado apenas quando um pico R é detectado. O `data_loader` trata o IBI preservando o timestamp exato de ocorrência de cada batimento, o que é crucial para análises posteriores de VFC no domínio da frequência.
+#### Protocolo V2 (Grupo `Fxx`)
+Como atualização do protocolo V1 o teste Stroop foi removido, e o segundo período de descanso foi realocado para separar as tarefas de opinião da tarefa de subtração.
+
+**Sequência de Fases:**
+```mermaid
+flowchart LR
+    T0[0. Baseline]:::rest --> T1[1. TMTC]:::stress
+    T1 --> T2[2. Rest]:::rest
+    T2 --> T3[3. Real Opinion]:::stress
+    T3 --> T4[4. Opposite Opinion]:::stress
+    T4 --> T5[5. Rest]:::rest
+    T5 --> T6[6. Subtract]:::stress
+    
+    classDef stress fill:#ffcccc,stroke:#333,stroke-width:2px;
+    classDef rest fill:#ccffcc,stroke:#333,stroke-width:1px;
+```
+> Stress : Índices `[1, 3, 4, 6]`.
+
+### Etapa 3: Engenharia de Features (`src/feature_extraction.py`)
+
+Para treinar modelos clássicos (Random Forest, SVM), não podemos usar o sinal contínuo. Precisamos extrair estatísticas de janelas temporais, assim o janelamento de 60 segundos com sobreposição de 50% (passo de 30s), seguindo a metodologia padrão em datasets como WESAD [[4]](#ref4).
+
+**Fluxo de Extração por Janela**
 
 ```mermaid
-graph TD
-    classDef default font-size:16px;
-
-    A[Dados Brutos] --> B("data_loader")
-    B -- Leitura --> C{"Tipo de Sensor?"}
+flowchart TD
+    Raw["Dados Brutos"] --> Win["Janela 60s"]
     
-    C -- "BVP / ACC / EDA" --> D["Calcula Timedelta<br/>(Baseado em 1/Fs)"]
-    C -- IBI --> E["Preserva Timestamp<br/>de Evento"]
+    Win --> ACC["Acelerômetro"]
+    Win --> BVP["BVP & HR"]
+    Win --> EDA["EDA"]
+    Win --> HRV["HRV (IBI)"]
     
-    D --> F[("Dict de DataFrames<br/>{sensor: df}")]
-    E --> F
-    F --> G["Pré-processamento"]
-
-    style A fill:#f9f,stroke:#333,stroke-width:2px
-    style G fill:#f9f,stroke:#333,stroke-width:2px
+    ACC --> A_Feat["Magnitude & Eixos"]
+    BVP --> B_Feat["Estatística & Tendência"]
+    EDA --> E_Feat["Fásico vs Tônico"]
+    HRV --> H_Feat["Tempo & Frequência"]
+    
+    A_Feat & B_Feat & E_Feat & H_Feat --> Vector["Vetor Final<br/>49 Features"]
 ```
 
-### Pré-processamento
+#### Features de Acelerômetro (Accelerometer)
 
-Após a ingestão, entramos no núcleo do processamento. O objetivo desta etapa é duplo: limpar o ruído inerente à coleta de dados em ambiente não controlado e segmentar os dados em unidades de tempo comparáveis.
+O sensor ACC mede a movimentação física, nessa parte é importante incluir essas features para que o modelo possa distinguir se uma alteração fisiológica é causada por estresse ou apenas por movimento físico [[1]](#ref1).
 
-#### Pipeline de Limpeza por Sensor
+- Por Eixo (x, y, z): Média e Desvio Padrão.
 
-Cada sensor possui características espectrais e tipos de ruído distintos, exigindo estratégias de filtragem específicas.
+- Magnitude: Calculamos a norma do vetor $\sqrt{x^2+y^2+z^2}$​ para ter uma medida de intensidade de movimento independente da orientação do pulso.
 
-#### Atividade Eletrodérmica (EDA)
-A EDA reflete mudanças na condutividade elétrica da pele, que podem vir de estímulos internos ou externos. Esses estímulos refletem em alterações na atividade das glândulas sudoríparas écrinas, que são inervadas pelo Sistema Nervoso Simpático (SNS) [[3]](#ref3). 
+- Tendência: ratio_up e ratio_down,  que vem a ser a proporção de tempo que o sinal passa subindo ou descendo.
 
-O principal desafio técnico aqui é o alinhamento temporal com sensores mais rápidos.
+#### Fotopletismografia (BVP e HR) 
 
-* **Upsampling:** Realiza-se a interpolação do sinal de 4Hz para 64Hz (mesma frequência do BVP) via interpolação linear, de maneira que as matrizes de dados tenham o mesmo tamanho durante a segmentação.
-* **Suavização:** Aplicação de um Filtro Gaussiano (`sigma=400ms`) para remover micro-flutuações e ruído de quantização, preservando a morfologia macro das respostas de condutância (SCR).
+- BVP (Blood Volume Pulse): O sinal bruto óptico. Extraímos média e desvio padrão apenas como descritores estatísticos do sinal cru.
 
-#### Fotopletismografia (BVP)
-O sinal de volume sanguíneo é suscetível a artefatos de movimento e variações de linha de base.
-* **Filtro Passa-Banda (Bandpass):** Utilizamos um filtro **Chebyshev Tipo II** (Ordem 4, Atenuação 20dB), com faixa de **0.5 Hz a 5.0 Hz**. Essa faixa corresponde a uma frequência cardíaca entre 30 bpm e 300 bpm, cobrindo todo o espectro fisiológico humano e eliminando ruídos de baixa frequência (respiração/movimento lento) e alta frequência (elétrico).
-* **Fase Zero:** Utilizamos a função `sosfiltfilt` (filtragem bidirecional) para garantir que não haja deslocamento de fase, o que alteraria a localização temporal dos picos sistólicos.
+- HR (Heart Rate): A frequência cardíaca processada. Além da média/std, calculamos a inclinação do sinal (ratio) para detectar se os batimentos estão em tendência de subida (ataque de estresse) ou descida (recuperação).
 
-#### Acelerometria (ACC)
-Para medir a intensidade do movimento independentemente da posição do braço do usuário, calculamos a Magnitude Vetorial:
+#### Features de EDA (Electrodermal Activity)
 
-$$Mag_{ACC} = \sqrt{x^2 + y^2 + z^2}$$
+Baseado em Boucsein [[3]](#ref3), o sinal de suor é decomposto para separar o nível basal da reação imediata:
 
-Em seguida, aplicamos uma suavização Gaussiana (`sigma=5`) para atenuar a vibração e focar no movimento voluntário.
+- Componente Tônica (SCL): Nível basal de condutância (lenta, indica estresse acumulado).
+- Componente Fásica (SCR): Respostas rápidas a estímulos específicos.
+- Features: Média, Desvio Padrão, Densidade de Picos (SCR Peaks), Amplitude média.
 
-### Segmentação (Janelamento)
-Os dados contínuos são fatiados em janelas de **60 segundos**.
+#### Features de HRV (Heart Rate Variability)
 
-#### Controle de Qualidade
-Se uma janela contiver menos de **95%** dos dados esperados, como por exemplo devido a uma queda de conexão, ela é descartada. Isso evita que o modelo aprenda com janelas incompletas ou corrompidas.
+Considerado o padrão-ouro para medir o equilíbrio do sistema nervoso autônomo (Simpático vs Parassimpático) [[2]](#ref2). O cálculo é feito sobre os intervalos entre batimentos (IBI).
 
-```mermaid
-graph TD
-    subgraph Raw ["Dados Brutos"]
-        A["EDA (4Hz)"]
-        B["BVP (64Hz)"]
-        C["ACC (32Hz)"]
-    end
+**Domínio do Tempo:**
 
-    subgraph Process ["Tratamento"]
-        A --> A1["Upsampling (64Hz)<br/>+ Gaussiano"]
-        B --> B1["Bandpass Chebyshev II<br/>(0.5 - 5.0 Hz)"]
-        C --> C1["Magnitude Vetorial<br/>+ Gaussiano"]
-    end
+-RMSSD: Raiz quadrada da média do quadrado das diferenças entre iBIs adjacentes. (Vital para curto prazo).
 
-    subgraph Output ["Segmentação"]
-        A1 --> D{"Janelamento<br/>(60s)"}
-        B1 --> D
-        C1 --> D
-        D -- "Perda < 5%" --> E[Janela Válida]
-        D -- "Perda > 5%" --> F[Descarte]
-    end
-```
+-SDNN: Desvio padrão dos intervalos.
 
-### Extração de Características
+-pNN50/pNN20: Porcentagem de intervalos adjacentes que diferem em mais de 50ms ou 20ms.
 
-Com as janelas limpas, transformamos as séries temporais em vetores de características (feature vectors) prontos para modelos de Machine Learning.
+- Domínio da Frequência : As features de frequência (LF, HF, VLF) indicam a modulação simpática/vagal.
 
-#### Features de BVP (Variabilidade da Frequência Cardíaca)
+Durante o desenvolvimento, encontramos um erro de Kernel Crash (Access Violation) ao usar métodos baseados em `FFT` [[9]](#ref9)(Fast Fourier Transform) via `scipy.interpolate`. Isso ocorria porque o intervalo entre batimentos (IBI) é irregular, para resolver esse problema substituímos a `FFT` pelo Periodograma de Lomb-Scargle[[8]](#ref8). Este método calcula a densidade espectral de potência diretamente de dados espaçados irregularmente, sem necessidade de interpolação, sendo mais robusto e leve para processamento de IBI.
 
-A VFC é o padrão-ouro para detecção de estresse autonômico.
+A execução do pipeline resulta em um vetor de 49 features por janela, conforme detalhado abaixo:
 
-- Domínio do Tempo: Focamos na estatística dos intervalos entre picos. `Mean_PP`, `std_PP` (média e desvio padrão dos intervalos pico-a-pico) e `M_HR` (Média da frequência cardíaca instantânea).
 
-- Domínio da Frequência: A `HF` (High Frequency) apresenta-se como a potência na banda 0.15–0.4 Hz, calculada via método de Welch. Esta métrica é associada à atividade parassimpática de relaxamento.
+| Sinal (Qtd) | Tipo | Features |
+| :--- | :--- | :--- |
+| **BVP (2)** | Estatístico | `bvp_mean`, `bvp_std` |
+| **HR (4)** | Estatístico | `hr_mean`, `hr_std`, `hr_ratio_down`, `hr_ratio_up` |
+| **HRV (20)** | Domínio Tempo | `max_ibi`, `min_ibi`, `mean_ibi`, `hr_mean_ibi`, `pnn20`, `pnn50`, `rmssd`, `sdnn` |
+| | Domínio Freq. | `total_power`, `ratio`, `VLF_power`, `VLF_peak`, `LF_power`, `LF_peak`, `LF_n`, `HF_power`, `HF_peak`, `HF_n`, `VHF_power`, `VHF_peak` |
+| **EDA (13)** | Estatístico | `mean_raw_eda`, `std_raw_eda` |
+| | Decomposição | `mean_tonic_eda`, `std_tonic_eda`, `mean_phasic_eda`, `std_phasic_eda`, `tonic_ratio_down`, `tonic_ratio_up` |
+| | Eventos SCR | `peaks_density`, `scr_mean_amp`, `scr_mean_height`, `scr_mean_risetime`, `scr_mean_recoverytime` |
+| **ACC (10)** | Estatístico | `acc_x_mean`, `acc_x_std`, `acc_y_mean`, `acc_y_std`, `acc_z_mean`, `acc_z_std` |
+| | Magnitude | `acc_mean`, `acc_std`, `acc_ratio_down`, `acc_ratio_up` |
 
-- Não-Linear: O `SD2` (Poincaré Plot) representa a variabilidade de longo prazo e correlaciona-se com a atividade simpática e parassimpática global.
+### Etapa 4: Carga (Batch Processing)
 
-#### Features de EDA (Resposta Galvânica)
+Implementado no notebook `02_batch_process.ipynb`. O script itera sobre as pastas de todos os sujeitos disponíveis no dataset [[7]](#ref7).
 
-A EDA é decomposta em nível tônico (linha de base) e fásico (respostas rápidas a estímulos - SCR).
+- Carrega dados brutos.
+- Sincroniza sinais.
+- Aplica labels baseados nas tags.
+- Extrai features janeladas.
+- Adiciona coluna subject_id para validação cruzada.
+- Concatena tudo e salva em `dataset_stress_completo.csv`.
 
-- Detecção: Primeiro é feita a detecção de picos (SCR), utilizando uma técnica de convolução com janela Bartlett de 20 pontos na derivada do sinal. Isso atua como um detector de bordas (matched filter) para encontrar subidas abruptas de condutância, típicas de estresse agudo.
+**Resultado Final:**
+- Sujeitos Processados com Sucesso: 36
+- Total de Janelas Geradas: 2904
+- Total de Features (Colunas): 52
 
-- Métricas:
+**Distribuição de Classes:**
+| label | # |
+| ----- | :-: |
+| Rest | 1799|
+| Stress | 1105|
 
-    - `N_PEAKS`: Quantidade de picos na janela (frequência de estímulos).
-    - `M_Amp`: Amplitude média dos picos (intensidade da reação).
-    - `M_RT` (Rise Time): Tempo médio de subida do pico.
-
-### Rotulagem
-
-A etapa final antes do treinamento é atribuir um rótulo (y) para cada janela de dados (X). O sistema vai suportar duas estratégias:
-
-A etapa final antes do treinamento é atribuir um rótulo (y) para cada janela de dados (X). O sistema suporta duas estratégias:
-
-- Método 1: Protocolo Temporal onde os rótulos são atribuídos baseados em timestamps pré-definidos.
-    - Das 14:00 às 14:20 = Stress
-    - Restante = Baseline
-
-- Método 2: Limiar Fisiológico, onde é definida binariamente rotulos de Stress = 1 ou= 1 ou Repouso = 0 se a média da EDA na janela for superior a um limiar T. O limiar pode ser fixo ou adaptativo, por exemplo:
-
-$$T = \mu_{\text{sujeito}} + \sigma_{\text{sujeito}}$$
-
-Onde:
-
-* $T$: É o nosso limiar de Corte (*Threshold*), que se a média da EDA na janela atual for maior que $T$, a janela é rotulada como *Estresse* (`1`); caso contrário, é *Repouso* (`0`).
-* $\mu_{\text{sujeito}}$: Representa a *Média* da Atividade Eletrodérmica (EDA) daquele sujeito específico, calculada preferencialmente durante o período de *baseline* (repouso inicial).
-* $\sigma_{\text{sujeito}}$: Representa o *Desvio Padrão* da EDA do sujeito. Adicionar o desvio padrão serve para garantir que apenas aumentos significativos sejam considerados estresse.
 
 <div style="display: none;">
-
-## Código Fonte
-
-O pipeline completo está implementado em Python e hospedado no GitHub. Abaixo estão os links diretos para os módulos descritos neste artigo:
-
-* [**01_data_loader.py**](https://github.com/SEU_USUARIO/SEU_REPOSITORIO/blob/main/src/01_data_loader.py) – Ingestão e sincronização dos sensores (BVP, ACC, EDA, TEMP).
-* [**04_preprocessing.py**](https://github.com/SEU_USUARIO/SEU_REPOSITORIO/blob/main/src/04_preprocessing.py) – Filtragem de sinal, *upsampling* e segmentação de janelas.
-* [**02_feature_extraction.py**](https://github.com/SEU_USUARIO/SEU_REPOSITORIO/blob/main/src/02_feature_extraction.py) – Extração de métricas de VFC e SCR.
-* [**03_labeling.py**](https://github.com/SEU_USUARIO/SEU_REPOSITORIO/blob/main/src/03_labeling.py) – Definição dos rótulos de estresse (Target).
-
-!!! info "Estrutura de Pastas"
-    Certifique-se de que o arquivo `config.py` também esteja presente no seu diretório `src/`, pois ele contém as constantes de frequência de amostragem utilizadas por todos os scripts acima.
-
-</div>
-
-
-
-
 
 ## Referências Bibliográficas
 
@@ -197,7 +211,11 @@ O pipeline completo está implementado em Python e hospedado no GitHub. Abaixo e
 2. <span id="ref2"></span> Task Force of the European Society of Cardiology and the North American Society of Pacing and Electrophysiology. (1996). Heart rate variability: standards of measurement, physiological interpretation and clinical use. *Circulation*, *93*(5), 1043-1065.
 3. <span id="ref3"></span> Boucsein, W. (2012). *Electrodermal activity* (2nd ed.). Springer Science & Business Media.
 4. <span id="ref4"></span> Schmidt, P., Reiss, A., Duerichen, R., Marberger, C., & Van Laerhoven, K. (2018). Introducing WESAD, a multimodal dataset for wearable stress and affect detection. In *Proceedings of the 20th ACM International Conference on Multimodal Interaction* (pp. 400-408).
-
+5. <span id="ref5"></span> Hongn, A., Bosch, F., Prado, L., & Bonomini, P. (2025). Wearable Device Dataset from Induced Stress and Structured Exercise Sessions (version 1.0.1). PhysioNet. RRID:SCR_007345. https://doi.org/10.13026/he0v-tf17
+6. <span id="ref6"></span> Hongn, A., Bosch, F., Prado, L. E., Ferrández, J.M., & Bonomini, M. P. (2025). Wearable Physiological Signals under Acute Stress and Exercise Conditions. Scientific Data, 12(1). https://doi.org/10.1038/s41597-025-04845-9
+7. <span id="ref7"></span> Goldberger, A., et al. (2000). PhysioBank, PhysioToolkit, and PhysioNet: Components of a new research resource for complex physiologic signals. Circulation [Online]. 101 (23), pp. e215–e220.
+8. <span id="ref8"></span>Bretthorst, G.. (2000). Generalizing the Lomb-Scargle Periodogram. Maximum Entropy and Bayesian Methods in Science and Engineering. 568. 10.1063/1.1381888. 
+9. <span id="ref9"></span>E. O. Brigham and R. E. Morrow, "The fast Fourier transform," in IEEE Spectrum, vol. 4, no. 12, pp. 63-70, Dec. 1967, doi: 10.1109/MSPEC.1967.5217220. keywords: {Fast Fourier transforms;Fourier transforms;Laplace equations;Differential equations;Discrete Fourier transforms;Problem-solving;Frequency synthesizers;Fourier series;Differential algebraic equations;Data analysis}, 
 
 
 

@@ -11,9 +11,10 @@ nav:
   - Home: index.md
   - 'Ciência de Dados':
       - 'Processamento de Sinais': ciencia_dados/signal_process.md
+      - 'Análise Exploratória': ciencia_dados/eda.md
 
   - Arquitetura:
-      - 'Parametria na arquitetura e urbanismo hoje': arquitetura/parametria.md
+      - 'Parametricismo, de um mero "estilo" à função social e integração tecnológica': arquitetura/parametricismo.md
 
 
 theme:
@@ -53,6 +54,7 @@ plugins:
       type: custom
       custom_format: "%d/%m/%Y" 
       fallback_to_build_date: true
+  - glightbox
 
 extra:
   social:
@@ -77,6 +79,9 @@ markdown_extensions:
           format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.arithmatex:
       generic: true
+  - attr_list
+  - md_in_html
+  - pymdownx.blocks.caption
 
 extra_javascript:
   - javascripts/mathjax.js
